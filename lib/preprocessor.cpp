@@ -442,16 +442,22 @@ static int tolowerWrapper(int c)
 }
 
 
-static bool isFallThroughComment(std::string comment)
+static bool isFallThroughComment(const std::string &str)
 {
     // convert comment to lower case without whitespace
-    for (std::string::iterator i = comment.begin(); i != comment.end();) {
-        if (std::isspace(static_cast<unsigned char>(*i)))
-            i = comment.erase(i);
-        else
-            ++i;
+    char buffer[64];
+    int len = 0;
+    for (std::string::const_iterator i = str.begin(); i != str.end(); ++i) {
+        unsigned char c = static_cast<unsigned char>(*i);
+        if (!std::isspace(c)) {
+            if (len >= (sizeof(buffer) / sizeof(buffer[0])) - 1)
+                //Large comment, unlikely to say "fall through"
+                return false;
+            buffer[len++] = c >= 'A' && c <= 'Z' ? c | 0x20 : c;
+        }
     }
-    std::transform(comment.begin(), comment.end(), comment.begin(), tolowerWrapper);
+    buffer[len] = 0;
+    std::string comment = buffer;
 
     return comment.find("fallthr") != std::string::npos ||
            comment.find("fallsthr") != std::string::npos ||
@@ -476,7 +482,7 @@ std::string Preprocessor::removeComments(const std::string &str, const std::stri
     bool inPreprocessorLine = false;
     std::vector<std::string> suppressionIDs;
     bool fallThroughComment = false;
-	bool checkStyle = _settings && _settings->isEnabled("style") && _settings->experimental;
+    bool checkStyle = _settings && _settings->isEnabled("style") && _settings->experimental;
 
     for (std::string::size_type i = hasbom(str) ? 3U : 0U; i < str.length(); ++i) {
         unsigned char ch = static_cast<unsigned char>(str[i]);
