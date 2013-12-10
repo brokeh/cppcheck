@@ -62,6 +62,8 @@ Token::~Token()
 
 void Token::update_property_info()
 {
+	_isStandardType = false;
+
     if (!_str.empty()) {
         if (_str == "true" || _str == "false")
             _type = eBoolean;
@@ -70,6 +72,8 @@ void Token::update_property_info()
                 _type = eVariable;
             else if (_type != eVariable && _type != eFunction && _type != eType)
                 _type = eName;
+
+            update_property_isStandardType();
         } else if (std::isdigit(_str[0]) || (_str.length() > 1 && _str[0] == '-' && std::isdigit(_str[1])))
             _type = eNumber;
         else if (_str.length() > 1 && _str[0] == '"' && _str[_str.length()-1] == '"')
@@ -111,12 +115,10 @@ void Token::update_property_info()
         else if (_str.size() == 1 && (_str.find_first_of("{}") != std::string::npos || (_link && _str.find_first_of("<>") != std::string::npos)))
             _type = eBracket;
         else
-            _type = eOther;
+			_type = eOther;
     } else {
         _type = eNone;
     }
-
-    update_property_isStandardType();
 }
 
 void Token::update_property_isStandardType()
@@ -126,8 +128,8 @@ void Token::update_property_isStandardType()
     if (_str.size() < 3)
         return;
 
-    static const char * const stdtype[] = {"int", "char", "bool", "long", "short", "float", "double", "wchar_t", "size_t", "void", 0};
-    for (int i = 0; stdtype[i]; i++) {
+    static const char * const stdtype[] = {"int", "char", "bool", "long", "short", "float", "double", "wchar_t", "size_t", "void"};
+    for (int i = 0; i < sizeof(stdtype) / sizeof(stdtype[0]); i++) {
         if (_str == stdtype[i]) {
             _isStandardType = true;
             _type = eType;
