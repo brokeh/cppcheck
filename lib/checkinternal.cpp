@@ -18,6 +18,7 @@
 
 #ifndef NDEBUG
 
+#include "optimise.h"
 #include "checkinternal.h"
 #include "symboldatabase.h"
 #include <string>

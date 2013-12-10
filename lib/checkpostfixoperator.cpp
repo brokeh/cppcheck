@@ -21,6 +21,7 @@
 // efficient than postfix operators
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "checkpostfixoperator.h"
 #include "symboldatabase.h"
 

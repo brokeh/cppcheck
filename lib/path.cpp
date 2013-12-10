@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "optimise.h"
 #include <algorithm>
 #include <vector>
 #include <sstream>

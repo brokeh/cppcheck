@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkbool.h"
 #include "mathlib.h"
 #include "symboldatabase.h"

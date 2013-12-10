@@ -17,6 +17,7 @@
  */
 
 
+#include "optimise.h"
 #include "checkmemoryleak.h"
 #include "symboldatabase.h"
 #include "mathlib.h"

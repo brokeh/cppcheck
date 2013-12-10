@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "optimise.h"
 #include "library.h"
 #include "path.h"
 #include "tinyxml2.h"

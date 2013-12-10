@@ -17,6 +17,7 @@
  */
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkexceptionsafety.h"
 #include "symboldatabase.h"
 #include "token.h"

@@ -17,6 +17,7 @@
  */
 
 
+#include "optimise.h"
 #include "preprocessor.h"
 #include "tokenize.h"
 #include "token.h"

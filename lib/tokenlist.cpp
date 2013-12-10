@@ -17,6 +17,7 @@
  */
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "tokenlist.h"
 #include "token.h"
 #include "mathlib.h"

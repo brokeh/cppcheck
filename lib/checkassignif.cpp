@@ -20,6 +20,7 @@
 // Check for assignment / condition mismatches
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "checkassignif.h"
 #include "symboldatabase.h"
 

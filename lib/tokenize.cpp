@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "tokenize.h"
 #include "mathlib.h"
 #include "settings.h"

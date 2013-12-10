@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkunusedvar.h"
 #include "symboldatabase.h"
 #include <algorithm>

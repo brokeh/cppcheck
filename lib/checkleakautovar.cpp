@@ -20,6 +20,7 @@
 // Leaks when using auto variables
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "checkleakautovar.h"
 
 #include "checkmemoryleak.h"  // <- CheckMemoryLeak::memoryLeak

@@ -20,6 +20,7 @@
 // Buffer overrun..
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "checkbufferoverrun.h"
 
 #include "tokenize.h"

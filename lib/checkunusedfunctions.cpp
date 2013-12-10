@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkunusedfunctions.h"
 #include "tokenize.h"
 #include "token.h"

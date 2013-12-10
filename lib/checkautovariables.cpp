@@ -20,6 +20,7 @@
 // Auto variables checks
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "checkautovariables.h"
 #include "symboldatabase.h"
 #include "checkuninitvar.h"

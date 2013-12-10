@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checksizeof.h"
 #include "symboldatabase.h"
 #include <algorithm>

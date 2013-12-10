@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkother.h"
 #include "mathlib.h"
 #include "symboldatabase.h"

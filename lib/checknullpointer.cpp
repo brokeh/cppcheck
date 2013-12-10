@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checknullpointer.h"
 #include "executionpath.h"
 #include "mathlib.h"

@@ -34,6 +34,7 @@ HEADERS += $${BASEPATH}check.h \
            $${BASEPATH}executionpath.h \
            $${BASEPATH}library.h \
            $${BASEPATH}mathlib.h \
+           $${BASEPATH}moptimise.h \
            $${BASEPATH}path.h \
            $${BASEPATH}preprocessor.h \
            $${BASEPATH}settings.h \

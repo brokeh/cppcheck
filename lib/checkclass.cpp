@@ -17,6 +17,7 @@
  */
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkclass.h"
 
 #include "tokenize.h"

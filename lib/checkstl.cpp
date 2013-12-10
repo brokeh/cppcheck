@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "optimise.h"
 #include "checkstl.h"
 #include "executionpath.h"
 #include "symboldatabase.h"

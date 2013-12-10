@@ -20,6 +20,7 @@
 // You should not write statements with side effects in assert()
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "checkassert.h"
 #include "symboldatabase.h"
 

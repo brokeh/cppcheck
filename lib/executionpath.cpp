@@ -17,6 +17,7 @@
  */
 
 
+#include "optimise.h"
 #include "executionpath.h"
 #include "token.h"
 #include "symboldatabase.h"

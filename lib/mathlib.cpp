@@ -18,6 +18,7 @@
 
 
 
+#include "optimise.h"
 #include "mathlib.h"
 #include "errorlogger.h"
 

@@ -20,6 +20,7 @@
 // 64-bit portability
 //---------------------------------------------------------------------------
 
+#include "optimise.h"
 #include "check64bit.h"
 #include "symboldatabase.h"
 

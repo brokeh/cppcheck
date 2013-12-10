@@ -18,6 +18,7 @@
 
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "checkuninitvar.h"
 #include "mathlib.h"
 #include "executionpath.h"

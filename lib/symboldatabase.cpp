@@ -17,6 +17,7 @@
  */
 
 //---------------------------------------------------------------------------
+#include "optimise.h"
 #include "symboldatabase.h"
 
 #include "tokenize.h"
