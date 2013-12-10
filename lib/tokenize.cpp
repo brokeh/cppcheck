@@ -2871,6 +2871,7 @@ void Tokenizer::setVarId()
     std::stack<unsigned int> scopestartvarid;  // varid when scope starts
     scopestartvarid.push(0);
     bool initlist = false;
+	bool isExecutableScope = false;
     for (Token *tok = list.front(); tok; tok = tok->next()) {
 
         // scope info to handle shadow variables..
@@ -2880,9 +2881,9 @@ void Tokenizer::setVarId()
             initlist = Token::simpleMatch(tok->link(), ") :");
 
             // function declarations
-        } else if (!executableScope.top() && tok->str() == "(" && Token::simpleMatch(tok->link(), ") ;")) {
+        } else if (!isExecutableScope && tok->str() == "(" && Token::simpleMatch(tok->link(), ") ;")) {
             scopeInfo.push(variableId);
-        } else if (!executableScope.top() && Token::simpleMatch(tok, ") ;")) {
+        } else if (!isExecutableScope && Token::simpleMatch(tok, ") ;")) {
             variableId.swap(scopeInfo.top());
             scopeInfo.pop();
 
@@ -2893,8 +2894,9 @@ void Tokenizer::setVarId()
                 scopestartvarid.push(_varId);
                 if (tok->strAt(-1) == ")" || Token::Match(tok->tokAt(-2), ") %type%")) {
                     executableScope.push(true);
+					isExecutableScope = true;
                 } else {
-                    executableScope.push(executableScope.top());
+					executableScope.push(isExecutableScope);
                     scopeInfo.push(variableId);
                 }
             }
@@ -2902,7 +2904,7 @@ void Tokenizer::setVarId()
             // parse anonymous unions as part of the current scope
             if (!(Token::simpleMatch(tok, "} ;") && Token::simpleMatch(tok->link()->previous(), "union {"))) {
                 // Set variable ids in class declaration..
-                if (!isC() && !executableScope.top() && tok->link()) {
+				if (!isC() && !isExecutableScope && tok->link()) {
                     setVarIdClassDeclaration(tok->link(),
                                              variableId,
                                              scopestartvarid.top(),
@@ -2926,11 +2928,12 @@ void Tokenizer::setVarId()
                 if (executableScope.empty()) {   // should not possibly happen
                     executableScope.push(false);
                 }
+				isExecutableScope = executableScope.top();
             }
         }
 
         if (tok == list.front() || Token::Match(tok, "[;{}]") ||
-            (Token::Match(tok,"[(,]") && (!executableScope.top() || Token::simpleMatch(tok->link(), ") {"))) ||
+            (Token::Match(tok,"[(,]") && (!isExecutableScope || Token::simpleMatch(tok->link(), ") {"))) ||
             (tok->isName() && tok->str().at(tok->str().length()-1U) == ':')) {
 
             // No variable declarations in sizeof
@@ -2955,7 +2958,7 @@ void Tokenizer::setVarId()
             if (notstart.find(tok2->str()) != notstart.end())
                 continue;
 
-            const bool decl = setVarIdParseDeclaration(&tok2, variableId, executableScope.top());
+			const bool decl = setVarIdParseDeclaration(&tok2, variableId, isExecutableScope);
 
             if (decl && Token::Match(tok2->previous(), "%type% [;[=,)]") && tok2->previous()->str() != "const") {
                 variableId[tok2->previous()->str()] = ++_varId;
