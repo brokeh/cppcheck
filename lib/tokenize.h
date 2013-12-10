@@ -786,6 +786,8 @@ private:
     /** Disable assignment operator, no implementation */
     Tokenizer &operator=(const Tokenizer &);
 
+    void cacheConfig();
+
     /** settings */
     const Settings * _settings;
 
@@ -814,7 +816,11 @@ private:
     /**
      * TimerResults
      */
-    TimerResults *m_timerResults;
+	TimerResults *m_timerResults;
+
+    bool _isC;
+    bool _isCPP;
+
 #ifdef MAXTIME
     /** Tokenizer maxtime */
     std::time_t maxtime;

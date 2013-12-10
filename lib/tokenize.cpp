@@ -42,7 +42,9 @@ Tokenizer::Tokenizer() :
     _symbolDatabase(0),
     _varId(0),
     _codeWithTemplates(false), //is there any templates?
-    m_timerResults(NULL)
+    m_timerResults(NULL),
+    _isC(false),
+    _isCPP(false)
 #ifdef MAXTIME
     ,maxtime(std::time(0) + MAXTIME)
 #endif
@@ -56,7 +58,9 @@ Tokenizer::Tokenizer(const Settings *settings, ErrorLogger *errorLogger) :
     _symbolDatabase(0),
     _varId(0),
     _codeWithTemplates(false), //is there any templates?
-    m_timerResults(NULL)
+	m_timerResults(NULL),
+    _isC(false),
+    _isCPP(false)
 #ifdef MAXTIME
     ,maxtime(std::time(0) + MAXTIME)
 #endif
@@ -1590,6 +1594,8 @@ bool Tokenizer::tokenize(std::istream &code,
 
     if (_settings->terminated())
         return false;
+
+    cacheConfig();
 
     // if MACRO
     for (Token *tok = list.front(); tok; tok = tok->next()) {
@@ -7789,7 +7795,7 @@ void Tokenizer::simplifyEnum()
                                 shadowId.push(shadowId.top());
 
                             // are there shadow arguments?
-                            if (Token::simpleMatch(tok2->previous(), ") {") || Token::simpleMatch(tok2->tokAt(-2), ") const {")) {
+                           if (Token::simpleMatch(tok2->previous(), ") {") || Token::simpleMatch(tok2->tokAt(-2), ") const {")) {
                                 std::set<std::string> shadowArg;
                                 for (const Token* arg = tok2; arg && arg->str() != "("; arg = arg->previous()) {
                                     if (Token::Match(arg->previous(), "%type%|*|& %type% [,)]") &&
@@ -10529,14 +10535,20 @@ const std::string& Tokenizer::getSourceFilePath() const
     return list.getFiles()[0];
 }
 
+void Tokenizer::cacheConfig()
+{
+    _isC = _settings->enforcedLang == Settings::C || (_settings->enforcedLang == Settings::None && Path::isC(getSourceFilePath()));
+    _isCPP = _settings->enforcedLang == Settings::CPP || (_settings->enforcedLang == Settings::None && Path::isCPP(getSourceFilePath()));
+}
+
 bool Tokenizer::isC() const
 {
-    return _settings->enforcedLang == Settings::C || (_settings->enforcedLang == Settings::None && Path::isC(getSourceFilePath()));
+    return _isC;
 }
 
 bool Tokenizer::isCPP() const
 {
-    return _settings->enforcedLang == Settings::CPP || (_settings->enforcedLang == Settings::None && Path::isCPP(getSourceFilePath()));
+    return _isCPP;
 }
 
 void Tokenizer::reportError(const Token* tok, const Severity::SeverityType severity, const std::string& id, const std::string& msg, bool inconclusive) const
