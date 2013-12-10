@@ -476,6 +476,7 @@ std::string Preprocessor::removeComments(const std::string &str, const std::stri
     bool inPreprocessorLine = false;
     std::vector<std::string> suppressionIDs;
     bool fallThroughComment = false;
+	bool checkStyle = _settings && _settings->isEnabled("style") && _settings->experimental;
 
     for (std::string::size_type i = hasbom(str) ? 3U : 0U; i < str.length(); ++i) {
         unsigned char ch = static_cast<unsigned char>(str[i]);
@@ -628,7 +629,7 @@ std::string Preprocessor::removeComments(const std::string &str, const std::stri
 
                 // First check for a "fall through" comment match, but only
                 // add a suppression if the next token is 'case' or 'default'
-                if (_settings && _settings->isEnabled("style") && _settings->experimental && fallThroughComment) {
+				if (checkStyle && fallThroughComment) {
                     std::string::size_type j = str.find_first_not_of("abcdefghijklmnopqrstuvwxyz", i);
                     std::string tok = str.substr(i, j - i);
                     if (tok == "case" || tok == "default")
