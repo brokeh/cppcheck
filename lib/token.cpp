@@ -28,6 +28,8 @@
 #include <sstream>
 #include <map>
 
+#define SPACE_OR_NULL(ch) (((ch) & ~0x20) == 0)
+
 Token::Token(Token **t) :
     tokensBack(t),
     _next(0),
@@ -62,7 +64,7 @@ Token::~Token()
 
 void Token::update_property_info()
 {
-	_isStandardType = false;
+    _isStandardType = false;
 
     if (!_str.empty()) {
         if (_str == "true" || _str == "false")
@@ -115,7 +117,7 @@ void Token::update_property_info()
         else if (_str.size() == 1 && (_str.find_first_of("{}") != std::string::npos || (_link && _str.find_first_of("<>") != std::string::npos)))
             _type = eBracket;
         else
-			_type = eOther;
+            _type = eOther;
     } else {
         _type = eNone;
     }
@@ -354,7 +356,7 @@ static int multiComparePercent(const Token *tok, const char ** haystack_p,
 
         if (*haystack == '|')
             *haystack_p = haystack = haystack + 1;
-        else if (*haystack == ' ' || *haystack == '\0')
+        else if (SPACE_OR_NULL(*haystack))
             return emptyStringFound ? 0 : -1;
         else
             return -1;
@@ -365,34 +367,36 @@ static int multiComparePercent(const Token *tok, const char ** haystack_p,
 
 int Token::multiCompare(const Token *tok, const char *haystack, const char *needle)
 {
-    if (haystack[0] == '%' && haystack[1] == 'o') {
-        if (haystack[2] == 'p' && // "%op%|"
-            haystack[3] == '%' &&
-            haystack[4] == '|') {
-            haystack = haystack + 5;
-            if (tok->isOp())
-                return 1;
-        } else if (haystack[2] == 'r' && // "%or%|"
-                   haystack[3] == '%' &&
-                   haystack[4] == '|') {
-            haystack = haystack + 5;
-            if (*needle == '|' && needle[1] != '|' && needle[1] != '=')
-                return 1;
-        } else if (haystack[2] == 'r' && // "%oror%|"
-                   haystack[3] == 'o' &&
-                   haystack[4] == 'r' &&
-                   haystack[5] == '%' &&
-                   haystack[6] == '|') {
-            haystack = haystack + 7;
-            if (needle[0] == '|' && needle[1] == '|')
+    if (haystack[0] == '%') {
+        if (haystack[1] == 'o') {
+            if (haystack[2] == 'p' && // "%op%|"
+                haystack[3] == '%' &&
+                haystack[4] == '|') {
+                haystack = haystack + 5;
+                if (tok->isOp())
+                    return 1;
+            } else if (haystack[2] == 'r' && // "%or%|"
+                       haystack[3] == '%' &&
+                       haystack[4] == '|') {
+                haystack = haystack + 5;
+                if (*needle == '|' && needle[1] != '|' && needle[1] != '=')
+                    return 1;
+            } else if (haystack[2] == 'r' && // "%oror%|"
+                       haystack[3] == 'o' &&
+                       haystack[4] == 'r' &&
+                       haystack[5] == '%' &&
+                       haystack[6] == '|') {
+                haystack = haystack + 7;
+                if (needle[0] == '|' && needle[1] == '|')
+                    return 1;
+            }
+        } else if (haystack[1] == 'c' && haystack[2] == 'o' && // "%cop%|"
+                   haystack[3] == 'p' && haystack[4] == '%' &&
+                   haystack[5] == '|') {
+            haystack = haystack + 6;
+            if (tok->isConstOp())
                 return 1;
         }
-    } else if (haystack[0] == '%' && haystack[1] == 'c' && haystack[2] == 'o' && // "%cop%|"
-               haystack[3] == 'p' && haystack[4] == '%' &&
-               haystack[5] == '|') {
-        haystack = haystack + 6;
-        if (tok->isConstOp())
-            return 1;
     }
 
     bool emptyStringFound = false;
@@ -419,7 +423,7 @@ int Token::multiCompare(const Token *tok, const char *haystack, const char *need
             int ret = multiComparePercent(tok, &haystack, needle, emptyStringFound);
             if (ret < 2)
                 return ret;
-        } else if (*haystack == ' ' || *haystack == '\0') {
+        } else if (SPACE_OR_NULL(*haystack)) {
             if (needlePointer == needle)
                 return 0;
             break;
@@ -431,11 +435,9 @@ int Token::multiCompare(const Token *tok, const char *haystack, const char *need
 
             do {
                 ++haystack;
-            } while (*haystack != ' ' && *haystack != '|' && *haystack);
-
-            if (*haystack == ' ' || *haystack == '\0') {
-                return emptyStringFound ? 0 : -1;
-            }
+                if (SPACE_OR_NULL(*haystack))
+                    return emptyStringFound ? 0 : -1;
+            } while (*haystack != '|');
 
             ++haystack;
 
@@ -500,7 +502,7 @@ bool Token::firstWordEquals(const char *str, const char *word)
 const char *Token::chrInFirstWord(const char *str, char c)
 {
     for (;;) {
-        if (*str == ' ' || *str == 0)
+        if (SPACE_OR_NULL(*str))
             return 0;
 
         if (*str == c)
@@ -514,7 +516,7 @@ int Token::firstWordLen(const char *str)
 {
     int len = 0;
     for (;;) {
-        if (*str == ' ' || *str == 0)
+        if (SPACE_OR_NULL(*str))
             break;
 
         ++len;
@@ -530,11 +532,11 @@ int Token::firstWordLen(const char *str)
         if (*(p) != '|')                        \
             return false;                       \
         ++(p);                                  \
-        ismulticomp = (*(p) && *(p) != ' ');    \
+        ismulticomp = !SPACE_OR_NULL(*p);       \
         continue;                               \
     }                                           \
     if (*(p) == '|') {                          \
-        while (*(p) && *(p) != ' ')             \
+        while (!SPACE_OR_NULL(*p))              \
             ++(p);                              \
     }                                           \
     ismulticomp = false;                        \
@@ -694,7 +696,7 @@ bool Token::Match(const Token *tok, const char pattern[], unsigned int varid)
             const char *temp = p+1;
             bool chrFound = false;
             unsigned int count = 0;
-            while (*temp && *temp != ' ') {
+            while (!SPACE_OR_NULL(*temp)) {
                 if (*temp == ']') {
                     ++count;
                 }
@@ -714,8 +716,6 @@ bool Token::Match(const Token *tok, const char pattern[], unsigned int varid)
                 return false;
 
             p = temp;
-            while (*p && *p != ' ')
-                ++p;
         }
 
         // Parse multi options, such as void|int|char (accept token which is one of these 3)
@@ -745,7 +745,7 @@ bool Token::Match(const Token *tok, const char pattern[], unsigned int varid)
             return false;
         }
 
-        while (*p && *p != ' ')
+        while (!SPACE_OR_NULL(*p))
             ++p;
 
         tok = tok->next();
