@@ -43,8 +43,8 @@ Tokenizer::Tokenizer() :
     _varId(0),
     _codeWithTemplates(false), //is there any templates?
     m_timerResults(NULL),
-    _isC(false),
-    _isCPP(false)
+	_isC(false),
+	_isCPP(false)
 #ifdef MAXTIME
     ,maxtime(std::time(0) + MAXTIME)
 #endif
@@ -59,8 +59,8 @@ Tokenizer::Tokenizer(const Settings *settings, ErrorLogger *errorLogger) :
     _varId(0),
     _codeWithTemplates(false), //is there any templates?
 	m_timerResults(NULL),
-    _isC(false),
-    _isCPP(false)
+	_isC(false),
+	_isCPP(false)
 #ifdef MAXTIME
     ,maxtime(std::time(0) + MAXTIME)
 #endif
@@ -1595,7 +1595,7 @@ bool Tokenizer::tokenize(std::istream &code,
     if (_settings->terminated())
         return false;
 
-    cacheConfig();
+	cacheConfig();
 
     // if MACRO
     for (Token *tok = list.front(); tok; tok = tok->next()) {
@@ -2099,7 +2099,7 @@ bool Tokenizer::tokenize(std::istream &code,
             const_cast<Token*>(var->typeEndToken()->next())->scope(var->typeEndToken()->scope());
         }
     }
-
+	
     list.createAst();
 
     return true;
@@ -3697,7 +3697,7 @@ bool Tokenizer::simplifyTokenList()
         if (Token::simpleMatch(tok, "* const"))
             tok->deleteNext();
     }
-
+	
     list.createAst();
 
     if (_settings->terminated())
@@ -3708,7 +3708,7 @@ bool Tokenizer::simplifyTokenList()
 
         if (_settings->_verbose)
             _symbolDatabase->printOut("Symbol database");
-
+		
         list.front()->printAst();
     }
 
@@ -7761,6 +7761,7 @@ void Tokenizer::simplifyEnum()
                 bool simplify = false;
                 bool hasClass = false;
                 EnumValue *ev = NULL;
+				std::map<std::string, EnumValue>::iterator found;
 
                 if (!tok1)
                     return;
@@ -7795,11 +7796,11 @@ void Tokenizer::simplifyEnum()
                                 shadowId.push(shadowId.top());
 
                             // are there shadow arguments?
-                           if (Token::simpleMatch(tok2->previous(), ") {") || Token::simpleMatch(tok2->tokAt(-2), ") const {")) {
+                            if (Token::simpleMatch(tok2->previous(), ") {") || Token::simpleMatch(tok2->tokAt(-2), ") const {")) {
                                 std::set<std::string> shadowArg;
                                 for (const Token* arg = tok2; arg && arg->str() != "("; arg = arg->previous()) {
                                     if (Token::Match(arg->previous(), "%type%|*|& %type% [,)]") &&
-                                        enumValues.find(arg->str()) != enumValues.end()) {
+										(found = enumValues.find(arg->str())) != enumValues.end()) {
                                         // is this a variable declaration
                                         const Token *prev = arg;
                                         while (Token::Match(prev,"%type%|*|&"))
@@ -7810,7 +7811,7 @@ void Tokenizer::simplifyEnum()
                                             continue;
                                         shadowArg.insert(arg->str());
                                         if (inScope && _settings->isEnabled("style")) {
-                                            const EnumValue enumValue = enumValues.find(arg->str())->second;
+											const EnumValue enumValue = found->second;
                                             duplicateEnumError(arg, enumValue.name, "Function argument");
                                         }
                                     }
@@ -7828,14 +7829,14 @@ void Tokenizer::simplifyEnum()
                             for (const Token *tok3 = tok2->next(); tok3 && tok3->str() != "}"; tok3 = tok3->next()) {
                                 if (tok3->str() == "{")
                                     tok3 = tok3->link(); // skip inner scopes
-                                else if (tok3->isName() && enumValues.find(tok3->str()) != enumValues.end()) {
+								else if (tok3->isName() && (found = enumValues.find(tok3->str())) != enumValues.end()) {
                                     const Token *prev = tok3->previous();
                                     if ((prev->isName() && !Token::Match(prev,"return|case|throw")) ||
                                         Token::Match(prev, "&|* %type% =")) {
                                         // variable declaration?
                                         shadowVars.insert(tok3->str());
                                         if (inScope && _settings->isEnabled("style")) {
-                                            const EnumValue enumValue = enumValues.find(tok3->str())->second;
+											const EnumValue enumValue = found->second;
                                             duplicateEnumError(tok3, enumValue.name, "Variable");
                                         }
                                     }
@@ -7861,14 +7862,14 @@ void Tokenizer::simplifyEnum()
                             // skip ( .. )
                             tok2 = tok2->next()->link();
                         }
-                    } else if (!pattern.empty() && Token::Match(tok2, pattern.c_str()) && enumValues.find(tok2->strAt(2)) != enumValues.end()) {
+                    } else if (!pattern.empty() && Token::Match(tok2, pattern.c_str()) && (found = enumValues.find(tok2->strAt(2))) != enumValues.end()) {
                         simplify = true;
                         hasClass = true;
-                        ev = &(enumValues.find(tok2->strAt(2))->second);
+						ev = &(found->second);
                     } else if (inScope &&    // enum is in scope
                                (shadowId.empty() || shadowId.top().find(tok2->str()) == shadowId.top().end()) &&   // no shadow enum/var/etc of enum
-                               enumValues.find(tok2->str()) != enumValues.end()) {    // tok2 is a enum id with a known value
-                        ev = &(enumValues.find(tok2->str())->second);
+							   (found = enumValues.find(tok2->str())) != enumValues.end()) {    // tok2 is a enum id with a known value
+						ev = &(found->second);
                         if (!duplicateDefinition(&tok2, ev->name)) {
                             if (tok2->strAt(-1) == "::" ||
                                 Token::Match(tok2->next(), "::|[")) {
@@ -10537,18 +10538,18 @@ const std::string& Tokenizer::getSourceFilePath() const
 
 void Tokenizer::cacheConfig()
 {
-    _isC = _settings->enforcedLang == Settings::C || (_settings->enforcedLang == Settings::None && Path::isC(getSourceFilePath()));
-    _isCPP = _settings->enforcedLang == Settings::CPP || (_settings->enforcedLang == Settings::None && Path::isCPP(getSourceFilePath()));
+	_isC = _settings->enforcedLang == Settings::C || (_settings->enforcedLang == Settings::None && Path::isC(getSourceFilePath()));
+	_isCPP = _settings->enforcedLang == Settings::CPP || (_settings->enforcedLang == Settings::None && Path::isCPP(getSourceFilePath()));
 }
 
 bool Tokenizer::isC() const
 {
-    return _isC;
+	return _isC;
 }
 
 bool Tokenizer::isCPP() const
 {
-    return _isCPP;
+	return _isCPP;
 }
 
 void Tokenizer::reportError(const Token* tok, const Severity::SeverityType severity, const std::string& id, const std::string& msg, bool inconclusive) const
