@@ -468,6 +468,14 @@ static bool isFallThroughComment(const std::string &str)
            comment == "fall";
 }
 
+namespace
+{
+	bool isCommentStartAt(const std::string& str, std::string::size_type index, const char (&comment)[3])
+	{
+		return str.size() >= index + 2 && str[index] == comment[0] && str[index + 1] == comment[1];
+	}
+}
+
 std::string Preprocessor::removeComments(const std::string &str, const std::string &filename)
 {
     // For the error report
@@ -482,7 +490,7 @@ std::string Preprocessor::removeComments(const std::string &str, const std::stri
     bool inPreprocessorLine = false;
     std::vector<std::string> suppressionIDs;
     bool fallThroughComment = false;
-    bool checkStyle = _settings && _settings->isEnabled("style") && _settings->experimental;
+	bool checkStyle = _settings && _settings->isEnabled("style") && _settings->experimental;
 
     for (std::string::size_type i = hasbom(str) ? 3U : 0U; i < str.length(); ++i) {
         unsigned char ch = static_cast<unsigned char>(str[i]);
@@ -536,7 +544,7 @@ std::string Preprocessor::removeComments(const std::string &str, const std::stri
         }
 
         // Remove comments..
-        if (str.compare(i, 2, "//", 0, 2) == 0) {
+		if (isCommentStartAt(str, i, "//")) {
             std::size_t commentStart = i + 2;
             i = str.find('\n', i);
             if (i == std::string::npos)
@@ -561,7 +569,7 @@ std::string Preprocessor::removeComments(const std::string &str, const std::stri
             code << "\n";
             previous = '\n';
             ++lineno;
-        } else if (str.compare(i, 2, "/*", 0, 2) == 0) {
+        } else if (isCommentStartAt(str, i, "/*")) {
             std::size_t commentStart = i + 2;
             unsigned char chPrev = 0;
             ++i;
