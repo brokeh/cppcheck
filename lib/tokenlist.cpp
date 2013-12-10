@@ -89,21 +89,21 @@ void TokenList::addtoken(const char str[], const unsigned int lineno, const unsi
     }
 
     // Replace hexadecimal value with decimal
-    std::ostringstream str2;
-    if (MathLib::isHex(str) || MathLib::isOct(str) || MathLib::isBin(str)) {
-        str2 << MathLib::toLongNumber(str);
+    std::string str2(str);
+	if (MathLib::isHex(str2) || MathLib::isOct(str2) || MathLib::isBin(str2)) {
+        std::ostringstream str3;
+		str3 << MathLib::toLongNumber(str2);
+        str2 = str3.str();
     } else if (std::strncmp(str, "_Bool", 5) == 0) {
-        str2 << "bool";
-    } else {
-        str2 << str;
+        str2 = "bool";
     }
 
     if (_back) {
-        _back->insertToken(str2.str());
+        _back->insertToken(str2);
     } else {
-        _front = new Token(&_back);
+		_front = new Token(&_back);
         _back = _front;
-        _back->str(str2.str());
+		_back->str(str2);
     }
 
     _back->linenr(lineno);
