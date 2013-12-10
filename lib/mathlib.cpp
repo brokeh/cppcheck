@@ -103,12 +103,20 @@ template<> std::string MathLib::toString(double value)
 
 bool MathLib::isFloat(const std::string &s)
 {
-    // every number that contains a . is a float
-    if (s.find("." , 0) != std::string::npos)
-        return true;
-    // scientific notation
-    return (s.find("E-", 0) != std::string::npos
-            || s.find("e-", 0) != std::string::npos);
+	size_t len = s.size();
+	if (len == 0)
+		return false;
+	--len;
+    for (size_t i = 0; i < len;)
+    {
+        if (s[i] == '.')
+            // every number that contains a . is a float
+            return true;
+        if ((s[i++] & ~0x20) == 'E' && s[i] == '-')
+            // scientific notation
+            return true;
+    }
+    return s[len] == '.';
 }
 
 bool MathLib::isNegative(const std::string &s)
@@ -128,20 +136,34 @@ bool MathLib::isPositive(const std::string &s)
 
 bool MathLib::isOct(const std::string& str)
 {
-    const bool sign = str[0]=='-' || str[0]=='+';
-    return (str[sign?1:0] == '0' && (str.size() == 1 || isOctalDigit(str[sign?2:1])) && !isFloat(str));
+	const unsigned int sign = str[0] == '-' || str[0] == '+';
+    return (str[sign] == '0' && (str.size() == 1 || isOctalDigit(str[sign + 1])) && !isFloat(str));
 }
 
 bool MathLib::isHex(const std::string& str)
 {
-    const bool sign = str[0]=='-' || str[0]=='+';
-    return (str.compare(sign?1:0, 2, "0x") == 0 || str.compare(sign?1:0, 2, "0X") == 0);
+    const unsigned int sign = str[0]=='-' || str[0]=='+';
+    return str.size() >= 2 + sign && str[sign] == '0' && (str[sign + 1] & ~0x20) == 'X';
 }
 
 bool MathLib::isBin(const std::string& str)
 {
-    const bool sign = str[0]=='-' || str[0]=='+';
-    return ((str.compare(sign?1:0, 2, "0b") == 0 || str.compare(sign?1:0, 2, "0B") == 0) && str.find_first_not_of("10bB", 1) == std::string::npos);
+	size_t len = str.size();
+	const unsigned int sign = str[0] == '-' || str[0] == '+';
+    if (len < sign + 2)
+        //Shortest bin number is 0b = 2 chars
+        return false;
+	if (str[sign] != '0' || (str[sign + 1] & ~0x20) != 'B')
+        //Must start with 0b or 0B
+        return false;
+    for (size_t i = sign + 2; i < len; ++i)
+    {
+        if ((str[i] & ~1) != '0')
+            //Not a 0 or 1
+            return false;
+    }
+
+    return true;
 }
 
 bool MathLib::isInt(const std::string & s)
@@ -413,5 +435,5 @@ bool MathLib::isNullValue(const std::string &str)
 
 bool MathLib::isOctalDigit(char c)
 {
-    return (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7');
+    return (c >= '0' && c <= '7');
 }
